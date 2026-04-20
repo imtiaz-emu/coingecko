@@ -46,6 +46,18 @@ done
 echo "PostgreSQL running on localhost:$HOST_PORT"
 echo "Connect: psql -h localhost -p $HOST_PORT -U postgres"
 
+# Start Redis if not running
+if ! docker ps --format '{{.Names}}' | grep -q "^shrtn_redis$"; then
+  if ! docker image inspect redis:7-alpine &>/dev/null; then
+    echo "Pulling redis:7-alpine..."
+    docker pull redis:7-alpine
+  fi
+  docker run --rm --name shrtn_redis -d -p 6379:6379 redis:7-alpine
+  echo "Redis running on localhost:6379"
+else
+  echo "Redis already running on localhost:6379"
+fi
+
 # Start pgAdmin4 if not running
 if ! docker ps --format '{{.Names}}' | grep -q "^shrtn_pgadmin$"; then
   if ! docker image inspect dpage/pgadmin4:latest &>/dev/null; then

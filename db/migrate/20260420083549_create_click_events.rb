@@ -13,7 +13,7 @@ class CreateClickEvents < ActiveRecord::Migration[7.2]
       t.timestamps
     end
 
-    add_index :click_events, [:short_url_id, :clicked_at]
+    add_index :click_events, [ :short_url_id, :clicked_at ]
     add_index :click_events, :clicked_at
     add_index :click_events, :id,
               where: "geo_resolved_at IS NULL",
