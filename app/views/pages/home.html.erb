@@ -1,0 +1,11 @@
+<h1>Shorten a URL</h1>
+
+<% if @error_key %>
+  <p class="error">Error: <%= @error_key %></p>
+<% end %>
+
+<%= form_with url: create_short_url_path, data: { turbo: false } do |f| %>
+  <%= f.text_field :target_url, name: "short_url[target_url]", placeholder: "https://example.com" %>
+  <%= f.text_field :custom_slug, name: "short_url[custom_slug]", placeholder: "custom-slug (optional)" %>
+  <%= f.submit "Shorten" %>
+<% end %>
