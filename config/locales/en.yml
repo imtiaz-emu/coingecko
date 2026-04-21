@@ -28,4 +28,17 @@
 #       enabled: "ON"
 
 en:
-  hello: "Hello world"
+  errors:
+    short_url:
+      url_blank:           "Please enter a URL."
+      url_too_long:        "URL must be under 2048 characters."
+      invalid_scheme:      "Only http and https URLs are supported."
+      missing_host:        "URL must include a valid hostname."
+      malformed_url:       "That doesn't look like a valid URL."
+      private_address:     "That URL points to a private or reserved address."
+      slug_reserved:       "That slug is reserved and cannot be used."
+      slug_taken:          "That custom slug is already in use."
+      slug_too_long:       "Custom slug must be 15 characters or fewer."
+      slug_invalid_chars:  "Slug may only contain letters, numbers, hyphens, and underscores."
+      collision_exhausted: "Could not generate a unique code. Please try again."
+      generic:             "Something went wrong. Please try again."

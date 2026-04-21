@@ -24,8 +24,16 @@ module Api
         su = ShortUrl.find_by(short_code: params[:short_code])
         return render json: { errors: [ { code: "not_found" } ] }, status: :not_found unless su
 
-        result = AnalyticsQueryService.new.call(short_url: su, page: params.fetch(:page, 1).to_i)
-        render json: result.value.except(:short_url)
+        result = AnalyticsQueryService.new.call(
+          short_url: su,
+          page:      params.fetch(:page, 1).to_i,
+          per_page:  params.fetch(:per_page, AnalyticsQueryService::DEFAULT_PER_PAGE).to_i
+        )
+        data = result.value.except(:short_url)
+        data[:recent_clicks] = data[:recent_clicks].map do |e|
+          { id: e.id, clicked_at: e.clicked_at.iso8601, country: e.country, city: e.city }
+        end
+        render json: data
       end
 
       private

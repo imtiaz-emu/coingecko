@@ -1,3 +1,90 @@
-<h1>Your short URL is ready</h1>
-<p><%= @short_url.full_short_url(request.host_with_port) %></p>
-<p>Target: <%= @short_url.target_url %></p>
+<% content_for :title, "shrtn.io — Your short URL" %>
+
+<div class="card border-success shadow-sm mb-4">
+  <div class="card-header bg-success text-white fw-semibold">
+    ✓ Your short URL is ready
+  </div>
+  <div class="card-body p-4">
+
+    <%# Short URL copy row %>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Short URL</label>
+      <div class="input-group">
+        <input id="short-url-input"
+               type="text"
+               class="form-control form-control-lg"
+               value="<%= @short_url.full_short_url(request.host_with_port) %>"
+               readonly>
+        <button id="copy-btn" class="btn btn-outline-secondary" type="button">Copy</button>
+      </div>
+    </div>
+
+    <%# Target URL %>
+    <div class="mb-3">
+      <label class="form-label fw-semibold">Target URL</label>
+      <div class="text-truncate">
+        <%= link_to @short_url.target_url, @short_url.target_url,
+              target: "_blank", rel: "noopener noreferrer",
+              class: "text-break" %>
+      </div>
+    </div>
+
+    <%# Page title — polls until resolved %>
+    <div class="mb-4">
+      <label class="form-label fw-semibold">Page title</label>
+      <p id="title-display" class="mb-0 text-muted fst-italic">
+        <%= @short_url.title_pending? ? "Fetching…" : (@short_url.title || "—") %>
+      </p>
+    </div>
+
+    <div class="d-flex gap-2">
+      <%= link_to "View Analytics", analytics_path(@short_url.short_code), class: "btn btn-outline-primary" %>
+      <%= link_to "Shorten another", root_path, class: "btn btn-outline-secondary" %>
+    </div>
+  </div>
+</div>
+
+<% content_for :scripts do %>
+<script>
+  // Clipboard copy
+  document.getElementById("copy-btn").addEventListener("click", function () {
+    var input = document.getElementById("short-url-input");
+    navigator.clipboard.writeText(input.value).then(function () {
+      var btn = document.getElementById("copy-btn");
+      btn.textContent = "Copied!";
+      btn.classList.replace("btn-outline-secondary", "btn-success");
+      setTimeout(function () {
+        btn.textContent = "Copy";
+        btn.classList.replace("btn-success", "btn-outline-secondary");
+      }, 2000);
+    });
+  });
+
+  // Title polling — every 2s, max 30s
+  <% if @short_url.title_pending? %>
+  (function () {
+    var shortCode = "<%= @short_url.short_code %>";
+    var apiUrl    = "/api/v1/short_urls/" + shortCode;
+    var attempts  = 0;
+    var maxAttempts = 15; // 15 × 2s = 30s
+
+    var poll = setInterval(function () {
+      attempts++;
+      fetch(apiUrl, { headers: { "Accept": "application/json" } })
+        .then(function (r) { return r.json(); })
+        .then(function (body) {
+          if (body.data && body.data.title_status === "resolved") {
+            clearInterval(poll);
+            var display = document.getElementById("title-display");
+            display.textContent = body.data.title || "—";
+            display.classList.remove("fst-italic", "text-muted");
+          }
+        })
+        .catch(function () { /* silently ignore network errors */ });
+
+      if (attempts >= maxAttempts) clearInterval(poll);
+    }, 2000);
+  })();
+  <% end %>
+</script>
+<% end %>

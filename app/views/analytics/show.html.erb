@@ -1,2 +1,152 @@
-<h1>Analytics for /<%= @short_url.short_code %></h1>
-<p>Total clicks: <%= @report[:total_clicks] %></p>
+<% content_for :title, "shrtn.io — Analytics for /#{@short_url.short_code}" %>
+
+<%# Summary stat cards %>
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-4">
+    <div class="card text-center h-100">
+      <div class="card-body">
+        <div class="display-6 fw-bold text-primary"><%= @report[:total_clicks] %></div>
+        <div class="text-muted small">Total Clicks</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4">
+    <div class="card text-center h-100">
+      <div class="card-body">
+        <div class="display-6 fw-bold text-primary"><%= @report[:clicks_by_country].size %></div>
+        <div class="text-muted small">Countries</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-12 col-md-4">
+    <div class="card text-center h-100">
+      <div class="card-body">
+        <div class="display-6 fw-bold text-primary"><%= @short_url.created_at.strftime("%b %d") %></div>
+        <div class="text-muted small">Created</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# Target URL info %>
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="row">
+      <div class="col-sm-3 text-muted fw-semibold">Short URL</div>
+      <div class="col-sm-9">
+        <%= link_to @short_url.full_short_url(request.host_with_port),
+              @short_url.full_short_url(request.host_with_port) %>
+      </div>
+    </div>
+    <hr class="my-2">
+    <div class="row">
+      <div class="col-sm-3 text-muted fw-semibold">Target</div>
+      <div class="col-sm-9 text-truncate">
+        <%= link_to @short_url.target_url, @short_url.target_url,
+              target: "_blank", rel: "noopener noreferrer" %>
+      </div>
+    </div>
+    <% if @short_url.title.present? %>
+      <hr class="my-2">
+      <div class="row">
+        <div class="col-sm-3 text-muted fw-semibold">Title</div>
+        <div class="col-sm-9"><%= @short_url.title %></div>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<%# Clicks by day chart %>
+<% if @report[:clicks_by_day].any? %>
+  <div class="card mb-4">
+    <div class="card-header fw-semibold">Clicks per day (last 90 days)</div>
+    <div class="card-body">
+      <canvas id="clicksChart" height="100"></canvas>
+    </div>
+  </div>
+<% end %>
+
+<%# Country breakdown %>
+<% if @report[:clicks_by_country].any? %>
+  <div class="card mb-4">
+    <div class="card-header fw-semibold">Top countries</div>
+    <div class="card-body p-0">
+      <table class="table table-sm mb-0">
+        <thead><tr><th>Country</th><th class="text-end">Clicks</th></tr></thead>
+        <tbody>
+          <% @report[:clicks_by_country].each do |row| %>
+            <tr>
+              <td><%= row[:country] %></td>
+              <td class="text-end"><%= row[:count] %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<% end %>
+
+<%# Recent click history with pagination %>
+<div class="card mb-4">
+  <div class="card-header fw-semibold">Recent clicks</div>
+  <% if @report[:recent_clicks].any? %>
+    <div class="card-body p-0">
+      <table class="table table-sm mb-0">
+        <thead><tr><th>Time</th><th>Country</th><th>City</th></tr></thead>
+        <tbody>
+          <% @report[:recent_clicks].each do |event| %>
+            <tr>
+              <td><%= event.clicked_at.strftime("%Y-%m-%d %H:%M") %></td>
+              <td><%= event.country || "—" %></td>
+              <td><%= event.city    || "—" %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+    <div class="card-footer d-flex justify-content-between">
+      <% if @report[:current_page] > 1 %>
+        <%= link_to "← Previous",
+              analytics_path(@short_url.short_code, page: @report[:current_page] - 1),
+              class: "btn btn-sm btn-outline-secondary" %>
+      <% else %>
+        <span></span>
+      <% end %>
+      <% if @report[:recent_clicks].count == @report[:per_page] %>
+        <%= link_to "Next →",
+              analytics_path(@short_url.short_code, page: @report[:current_page] + 1),
+              class: "btn btn-sm btn-outline-secondary" %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="card-body text-muted">No clicks yet.</div>
+  <% end %>
+</div>
+
+<%= link_to "← Shorten another URL", root_path, class: "btn btn-outline-primary mb-4" %>
+
+<% if @report[:clicks_by_day].any? %>
+  <% content_for :scripts do %>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"
+          crossorigin="anonymous"></script>
+  <script>
+    var ctx = document.getElementById("clicksChart").getContext("2d");
+    new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: <%= raw @report[:clicks_by_day].map { |r| r[:date] }.to_json %>,
+        datasets: [{
+          label: "Clicks",
+          data:  <%= raw @report[:clicks_by_day].map { |r| r[:count] }.to_json %>,
+          backgroundColor: "rgba(13,110,253,0.6)"
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales:  { y: { beginAtZero: true, ticks: { precision: 0 } } }
+      }
+    });
+  </script>
+  <% end %>
+<% end %>
