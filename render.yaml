@@ -55,6 +55,7 @@ services:
     name: shrtn-redis
     plan: free
     maxmemoryPolicy: allkeys-lru
+    ipAllowList: []
 
 databases:
   - name: shrtn-db
