@@ -115,32 +115,9 @@ The repo includes a `render.yaml` Blueprint that provisions:
 - `shrtn-redis` — Redis instance (free tier)
 - `shrtn-db` — PostgreSQL database (free tier)
 
-### Steps
-
-1. Push repo to GitHub
-2. Render Dashboard → **New → Blueprint** → select this repo
-3. Set the following environment variables manually in the Render dashboard (marked `sync: false`):
-   - `APP_HOST` — your Render domain, e.g. `shrtn-web.onrender.com`
-   - `SIDEKIQ_WEB_USERNAME` — basic auth username for `/sidekiq`
-   - `SIDEKIQ_WEB_PASSWORD` — strong password
-4. Trigger deploy — migrations run automatically via `bin/render-build.sh`
-
 ### Keep-warm (free tier)
 
-Render free services spin down after 15 min of inactivity (~30s cold start).  
-Set up [UptimeRobot](https://uptimerobot.com) (free) to ping `https://<your-app>.onrender.com/health` every 5 minutes.
-
-### Post-deploy Checklist
-
-- [ ] `GET /health` → `{"status":"ok"}`
-- [ ] Submit a URL on home page → short URL displayed
-- [ ] Follow short URL → redirects to target
-- [ ] Wait ~10s → title populates on result page
-- [ ] `GET /:code/stats` → analytics page with click count
-- [ ] `GET /robots.txt` → `Disallow: /`
-- [ ] `GET /sidekiq` → basic auth prompt
-- [ ] Submit `http://192.168.1.1` → blocked with error (SSRF guard)
-- [ ] HTTPS enforced (Render provides TLS automatically)
+Render free services spin down after 15 min of inactivity (~30s cold start).
 
 ---
 
@@ -155,6 +132,6 @@ Set up [UptimeRobot](https://uptimerobot.com) (free) to ping `https://<your-app>
 | `SIDEKIQ_WEB_USERNAME` | Basic auth user for `/sidekiq` | ✅ |
 | `SIDEKIQ_WEB_PASSWORD` | Basic auth password for `/sidekiq` | ✅ |
 | `RAILS_ENV` | `production` in production | ✅ |
+| `MAXMIND_LICENSE_KEY` | MaxMind license key — downloads `GeoLite2-City.mmdb` at build time | optional |
 | `RAILS_MAX_THREADS` | Puma thread count (default: 5) | optional |
 | `WEB_CONCURRENCY` | Puma worker count (default: 2) | optional |
-

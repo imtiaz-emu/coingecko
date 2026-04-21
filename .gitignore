@@ -34,6 +34,5 @@
 # Ignore master key for decrypting credentials and more.
 /config/master.key
 
-!db/GeoLite2-City.mmdb
-
-!db/GeoLite2-City.mmdb
+# GeoIP database — too large for git, downloaded during build via MAXMIND_LICENSE_KEY
+/db/GeoLite2-City.mmdb
