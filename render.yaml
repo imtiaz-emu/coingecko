@@ -4,7 +4,7 @@ services:
     runtime: ruby
     plan: free
     buildCommand: "./bin/render-build.sh"
-    startCommand: "bundle exec puma -C config/puma.rb"
+    startCommand: "./bin/start.sh"
     envVars:
       - key: RAILS_ENV
         value: production
@@ -29,27 +29,6 @@ services:
         sync: false
       - key: SIDEKIQ_WEB_PASSWORD
         sync: false
-
-  - type: worker
-    name: shrtn-worker
-    runtime: ruby
-    plan: free
-    buildCommand: "./bin/render-build.sh"
-    startCommand: "bundle exec sidekiq -C config/sidekiq.yml"
-    envVars:
-      - key: RAILS_ENV
-        value: production
-      - key: DATABASE_URL
-        fromDatabase:
-          name: shrtn-db
-          property: connectionString
-      - key: REDIS_URL
-        fromService:
-          name: shrtn-redis
-          type: redis
-          property: connectionString
-      - key: SECRET_KEY_BASE
-        generateValue: true
 
   - type: redis
     name: shrtn-redis
