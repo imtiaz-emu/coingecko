@@ -18,7 +18,7 @@ gem "stimulus-rails"
 gem "jbuilder"
 # Use Redis adapter for caching and Sidekiq queue
 gem "redis", "~> 5.0"
-gem "sidekiq", "~> 7.0"
+gem "sidekiq", "~> 8.1"
 gem "rack-attack", "~> 6.7"
 gem "faraday",                  "~> 2.9"
 gem "faraday-follow_redirects", "~> 0.3"
