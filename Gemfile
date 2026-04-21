@@ -18,6 +18,10 @@ gem "stimulus-rails"
 gem "jbuilder"
 # Use Redis adapter for caching and Sidekiq queue
 gem "redis", "~> 5.0"
+gem "sidekiq", "~> 7.0"
+gem "faraday",                  "~> 2.9"
+gem "faraday-follow_redirects", "~> 0.3"
+gem "nokogiri",                 "~> 1.16"
 
 group :development, :test do
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
@@ -26,6 +30,7 @@ group :development, :test do
   gem "dotenv-rails"
   gem "rspec-rails",       "~> 7.0"
   gem "factory_bot_rails", "~> 6.4"
+  gem "maxmind-db",        "~> 1.2"
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
   gem "brakeman", require: false
@@ -36,6 +41,7 @@ end
 
 group :test do
   gem "shoulda-matchers", "~> 6.1"
+  gem "webmock",          "~> 3.23"
 end
 
 group :development do
