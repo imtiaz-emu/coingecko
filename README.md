@@ -14,7 +14,7 @@ A production-grade URL shortener built with Rails 7.2. Shorten any URL, track cl
 | UI | Bootstrap 5.3 CDN, Chart.js 4.4 CDN |
 | Background Jobs | ClickRecordJob, TitleFetchJob, GeoIpResolveJob |
 | Security | Rack::Attack (rate limiting), CSP, SSRF guard |
-| Deployment | Render.com (web + worker services) |
+| Deployment | Render.com (free tier, single web service) |
 
 ---
 
@@ -111,8 +111,7 @@ GET /api/v1/short_urls/:short_code/analytics?page=1&per_page=20
 
 The repo includes a `render.yaml` Blueprint that provisions:
 
-- `shrtn-web` — Rails/Puma web service
-- `shrtn-worker` — Sidekiq worker service
+- `shrtn-web` — Rails/Puma web service (Sidekiq runs in the same process via `bin/start.sh`)
 - `shrtn-redis` — Redis instance (free tier)
 - `shrtn-db` — PostgreSQL database (free tier)
 
