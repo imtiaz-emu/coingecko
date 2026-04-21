@@ -1,3 +1,10 @@
+require "sidekiq/web"
+
+Sidekiq::Web.use Rack::Auth::Basic do |user, pass|
+  ActiveSupport::SecurityUtils.secure_compare(user, ENV.fetch("SIDEKIQ_WEB_USERNAME", "")) &
+    ActiveSupport::SecurityUtils.secure_compare(pass, ENV.fetch("SIDEKIQ_WEB_PASSWORD", ""))
+end
+
 Rails.application.routes.draw do
   root "pages#home"
 
@@ -15,6 +22,8 @@ Rails.application.routes.draw do
   end
 
   get "/health", to: "health#show"
+
+  mount Sidekiq::Web => "/sidekiq"
 
   # Render dynamic PWA files from app/views/pwa/*
   get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
