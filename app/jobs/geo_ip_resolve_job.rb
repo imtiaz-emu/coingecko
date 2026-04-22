@@ -7,7 +7,9 @@ class GeoIpResolveJob < ApplicationJob
     return unless event
     return if event.geo_resolved_at.present?
 
+    Rails.logger.info("[GeoIpResolveJob] resolving click_event=#{click_event_id} ip=#{event.ip_address.inspect}")
     result = GeoIpClient.new.lookup(event.ip_address.to_s)
+    Rails.logger.info("[GeoIpResolveJob] result=#{result.inspect}")
     event.update!(
       country:         result[:country],
       region:          result[:region],

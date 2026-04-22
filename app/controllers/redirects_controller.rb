@@ -6,7 +6,7 @@ class RedirectsController < ApplicationController
       data = result.value
       ClickRecordJob.perform_later(
         short_url_id: data[:id],
-        ip_address:   anonymise_ip(request.remote_ip),
+        ip_address:   anonymise_ip(client_ip),
         user_agent:   request.user_agent.to_s.truncate(500),
         referrer:     request.referer.to_s.truncate(2048),
         clicked_at:   Time.current.iso8601
@@ -20,8 +20,20 @@ class RedirectsController < ApplicationController
 
   private
 
+  # Render (and most cloud providers) put the real client IP as the leftmost
+  # entry in X-Forwarded-For. Rails' remote_ip returns the load balancer's
+  # internal IP on Render, so we read the header directly.
+  def client_ip
+    forwarded_for = request.env["HTTP_X_FORWARDED_FOR"]
+    if forwarded_for.present?
+      forwarded_for.split(",").first.strip
+    else
+      request.remote_ip
+    end
+  end
+
   def anonymise_ip(ip)
-    addr = IPAddr.new(ip)
+    addr = IPAddr.new(ip.to_s)
     addr.ipv4? ? addr.mask(24).to_s : addr.mask(48).to_s
   rescue IPAddr::InvalidAddressError
     nil

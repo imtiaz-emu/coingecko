@@ -16,7 +16,8 @@ class GeoIpClient
       region:  record.dig("subdivisions", 0, "names", "en"),
       city:    record.dig("city", "names", "en")
     }
-  rescue StandardError
+  rescue StandardError => e
+    Rails.logger.error("[GeoIpClient] lookup failed for #{ip_address.inspect}: #{e.class} #{e.message}")
     null_result
   end
 
