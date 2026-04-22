@@ -30,7 +30,7 @@ group :development, :test do
   gem "debug", platforms: %i[ mri windows ], require: "debug/prelude"
 
   gem "dotenv-rails"
-  gem "rspec-rails",       "~> 7.0"
+  gem "rspec-rails",       "~> 8.0"
   gem "factory_bot_rails", "~> 6.4"
 
   # Static analysis for security vulnerabilities [https://brakemanscanner.org/]
