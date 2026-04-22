@@ -2,7 +2,7 @@ class GeoIpClient
   DB_PATH = Rails.root.join("db", "GeoLite2-City.mmdb").to_s
 
   def initialize
-    @reader = File.exist?(DB_PATH) ? MaxMind::DB.new(DB_PATH, mode: MaxMind::DB::MODE_MEMORY) : nil
+    @reader = File.exist?(DB_PATH) ? ::MaxMind::DB.new(DB_PATH, mode: ::MaxMind::DB::MODE_MEMORY) : nil
   end
 
   def lookup(ip_address)
