@@ -22,7 +22,7 @@ gem "sidekiq", "~> 7.0"
 gem "rack-attack", "~> 6.7"
 gem "faraday",                  "~> 2.9"
 gem "faraday-follow_redirects", "~> 0.3"
-gem "nokogiri",                 "~> 1.16"
+gem "nokogiri",                 "~> 1.19"
 gem "maxmind-db",              "~> 1.2"
 
 group :development, :test do
